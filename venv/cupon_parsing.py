@@ -27,9 +27,5 @@ def cupon_pars():
                 'new_price': cupon.find('span', attrs={'class': '_1trEHSCHMh condensed c-primary bold'}).text,
                 # 'img': cupon.find('div', attrs={'style'}),
             }
-            print(data)
+            return data
             # print(cupon.div['style'])
-
-
-
-cupon_pars()
