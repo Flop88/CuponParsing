@@ -3,12 +3,18 @@ import telebot
 import requests
 import time
 import schedule
+import urllib
 from bs4 import BeautifulSoup as bs
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 5.1; rv:47.0) Gecko/20100101 Firefox/47.0',
            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}
 
 kfc_url = 'https://www.kfc.ru/coupons'
+
+url='https://retailer.ru/wp-content/uploads/2019/04/kfc-logo-1.jpg'
+f = open('out.jpg','wb')
+f.write(urllib.request.urlopen(url).read())
+f.close()
 
 def cupon_pars():
 
@@ -87,30 +93,53 @@ def send_cupon():
 
         cupons_info = cupon_table.find_all('div', attrs={'class': '_2NyuN9wIxb _2863BpiS1v mr-32 mb-64'})
 
+        dist = []
+
         for cupon in cupons_info:
             data = {
-                'cupon': cupon.find('div', attrs={'class': '_2pr76I4WPm'}).text,
+                'cupon': cupon.find('div', attrs={'class': '_2pr76I4WPm'}).text.strip(),
                 'title': cupon.find('div',
-                                    attrs={'class': '_3POebZQSBG t-md c-description mt-16 pl-24 pr-24 condensed'}).text,
-                'old_price': cupon.find('div', attrs={'class': '_2XDTnYog36'}).span.text,
-                'new_price': cupon.find('span', attrs={'class': '_1trEHSCHMh condensed c-primary bold'}).text,
+                                    attrs={'class': '_3POebZQSBG t-md c-description mt-16 pl-24 pr-24 condensed'}).text.strip(),
+                'old_price': cupon.find('div', attrs={'class': '_2XDTnYog36'}).span.text.strip(),
+                'new_price': cupon.find('span', attrs={'class': '_1trEHSCHMh condensed c-primary bold'}).text.strip(),
                 # 'img': cupon.find('div', attrs={'style'}),
+
             }
-            send_cupon_message(chat_id, data)
-            # for i in data:
-                # schedule.every(5).seconds.do(print(data[i]))
+            dist.append(data)
+            # result = '; '.join([f'{key.capitalize()}: {value}' for key, value in data.items()])
+            # print(result)
+
+            # send_cupon_message(chat_id, data)
         # send_cupon_message(chat_id, data)
+        str = ""
+        for element in dist:
+            # print(element)
+            for key, value in element.items():
+                result = '\n '.join([f'{key.capitalize()}: {value}'])
+                print(result)
+                str = str + result
+
+        print("\n-------------------------")
+        print("\n" + result)
+        # str = dist[0]
+        # for key, value in str.items():
+        #     result = '\n '.join([f'{key.capitalize()}: {value}'])
+        #     print(result)
+
+
+#bot.send_photo(id, photo, caption='желаемый текст')
 
 
 def send_cupon_message(chat_id, data):
-    return bot.send_message(chat_id, "Купон KFC: "
-                            + "\n Сегодня доступен: " + data['title']
-                            + "\n По купону: " + data['cupon']
-                            + "\n Старая цена: " + data['old_price'] + "₽"
-                            + "\n Новая цена: " + data['new_price'] + "₽")
+    img = open('out.jpg', 'rb')
+    text = "Купон KFC: \n Сегодня доступен: " + data['title']  + "\n По купону: " + data['cupon'] + "\n Старая цена: " + data['old_price'] + "₽" + "\n Новая цена: " + data['new_price'] + "₽"
+
+    return bot.send_photo(chat_id, img, caption=text)
+#     return bot.send_message(chat_id, ),
+# bot.send_photo(message.chat.id, get("https://i0.wampi.ru/2019/11/12/image.png").content)
 
 
-schedule.every(20).seconds.do(send_cupon)
+schedule.every(5).seconds.do(send_cupon)
 # schedule.every(10).minutes.do(job)
 # schedule.every().hour.do(job)
 # schedule.every().day.at("02:03").do(send_cupon) # Send message every day in 01:57
