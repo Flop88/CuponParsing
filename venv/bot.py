@@ -82,9 +82,12 @@ def send_data(message):
 
 def send_cupon():
     # chat_id= "402149651"
+    img = open('out.jpg', 'rb')
     chat_id= "-1001301485842"
     session = requests.Session()
     request = session.get(kfc_url, headers=headers)
+
+
 
     if request.status_code == 200:
         request = session.get(kfc_url, headers=headers)
@@ -97,18 +100,15 @@ def send_cupon():
 
         for cupon in cupons_info:
             data = {
-                'cupon': cupon.find('div', attrs={'class': '_2pr76I4WPm'}).text.strip(),
-                'title': cupon.find('div',
+                'купон': cupon.find('div', attrs={'class': '_2pr76I4WPm'}).text.strip(),
+                'Название': cupon.find('div',
                                     attrs={'class': '_3POebZQSBG t-md c-description mt-16 pl-24 pr-24 condensed'}).text.strip(),
-                'old_price': cupon.find('div', attrs={'class': '_2XDTnYog36'}).span.text.strip(),
-                'new_price': cupon.find('span', attrs={'class': '_1trEHSCHMh condensed c-primary bold'}).text.strip(),
-                # 'img': cupon.find('div', attrs={'style'}),
+                'старая цена': cupon.find('div', attrs={'class': '_2XDTnYog36'}).span.text.strip(),
+                'новая цена': cupon.find('span', attrs={'class': '_1trEHSCHMh condensed c-primary bold'}).text.strip(),
+                '\n': ':::::::::::::::::::: : \n'
 
             }
             dist.append(data)
-            # result = '; '.join([f'{key.capitalize()}: {value}' for key, value in data.items()])
-            # print(result)
-
             # send_cupon_message(chat_id, data)
         # send_cupon_message(chat_id, data)
         str = ""
@@ -116,15 +116,9 @@ def send_cupon():
             # print(element)
             for key, value in element.items():
                 result = '\n '.join([f'{key.capitalize()}: {value}'])
-                print(result)
-                str = str + result
+                str += result + "\n"
+        return send_cupon_message(chat_id, str)
 
-        print("\n-------------------------")
-        print("\n" + result)
-        # str = dist[0]
-        # for key, value in str.items():
-        #     result = '\n '.join([f'{key.capitalize()}: {value}'])
-        #     print(result)
 
 
 #bot.send_photo(id, photo, caption='желаемый текст')
@@ -132,11 +126,9 @@ def send_cupon():
 
 def send_cupon_message(chat_id, data):
     img = open('out.jpg', 'rb')
-    text = "Купон KFC: \n Сегодня доступен: " + data['title']  + "\n По купону: " + data['cupon'] + "\n Старая цена: " + data['old_price'] + "₽" + "\n Новая цена: " + data['new_price'] + "₽"
-
-    return bot.send_photo(chat_id, img, caption=text)
-#     return bot.send_message(chat_id, ),
-# bot.send_photo(message.chat.id, get("https://i0.wampi.ru/2019/11/12/image.png").content)
+    # text = "Купон KFC: \n Сегодня доступен: " + data['title']  + "\n По купону: " + data['cupon'] + "\n Старая цена: " + data['old_price'] + "₽" + "\n Новая цена: " + data['new_price'] + "₽"
+    return print(len(data))
+    # return bot.send_photo(chat_id, img, caption=data) // Всем сообщением не влазит
 
 
 schedule.every(5).seconds.do(send_cupon)
